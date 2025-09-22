@@ -1,0 +1,18 @@
+EOF
+--BOUNDARY_STRING
+Content-Type: application/json; charset=UTF-8
+
+{
+  "file": {
+    "mimeType": "text/plain",
+    "displayName": "contoh-file-teks"
+  }
+}
+--BOUNDARY_STRING
+Content-Type: text/plain
+
+Halo ini isi file TXT.
+Baris kedua dari file.
+Baris ketiga dari file.
+--BOUNDARY_STRING--
+EOF
