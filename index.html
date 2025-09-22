@@ -7,27 +7,29 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center py-8">
+<body class="bg-gray-100 h-screen flex flex-col">
 
-  <h1 class="text-2xl font-bold mb-6">Preview</h1>
+  <!-- Header -->
+  <h1 class="text-2xl font-bold p-4 bg-white shadow">Preview</h1>
 
-  <div class="grid grid-cols-1 md:grid-cols-1 gap-6 w-11/12 max-w-6xl">
+  <!-- Konten Utama -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 p-4 overflow-hidden">
     <!-- Input -->
-    <div class="flex flex-col">
-      <label for="markdown-input" class="font-semibold mb-1">Input Markdown</label>
+    <div class="flex flex-col min-h-0">
+      <label for="markdown-input" class="font-semibold mb-2">Input Markdown</label>
       <textarea 
         id="markdown-input" 
-        class="p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-96 resize-none"
+        class="flex-1 p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-auto"
         placeholder="Tulis Markdown di sini..."
       ></textarea>
     </div>
 
     <!-- Preview -->
-    <div class="flex flex-col">
+    <div class="flex flex-col min-h-0">
       <label for="preview" class="font-semibold mb-2">Preview</label>
       <div 
         id="preview" 
-        class="p-4 rounded-lg border border-gray-300 shadow-sm bg-white prose max-w-none overflow-auto h-96"
+        class="flex-1 p-4 rounded-lg border border-gray-300 shadow-sm bg-white prose max-w-none overflow-auto"
       ></div>
     </div>
   </div>
@@ -36,24 +38,18 @@
     const textarea = document.getElementById("markdown-input");
     const preview = document.getElementById("preview");
     
-
     function updatePreview() {
-        let rawText = textarea.value;
-        // 1. Ganti literal "\n" (karakter backslash + n) → newline asli
-        rawText = rawText.replace(/\\n/g, "\n");
-    
-        // 2. Parse dengan marked.js
-        let html = marked.parse(rawText);
-    
-        // 3. Tambahan: jika masih mau semua newline asli jadi <br/>
-        html = html.replace(/\n/g, "<br/>");
-    
-        preview.innerHTML = html;
+      let rawText = textarea.value;
+      // Ganti literal "\n" → newline asli
+      rawText = rawText.replace(/\\n/g, "\n");
+      // Parse markdown
+      let html = marked.parse(rawText);
+      // Render newline jadi <br/>
+      html = html.replace(/\n/g, "<br/>");
+      preview.innerHTML = html;
     }
 
     textarea.addEventListener("input", updatePreview);
-
-    // Render awal
     updatePreview();
   </script>
 
