@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Gradien CSS</title>
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Font Inter dari Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Menggunakan font Inter sebagai default */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style kustom untuk slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #4a5568;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type=range]:hover {
+            opacity: 1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4299e1;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4299e1;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        /* Style untuk color picker */
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 60px;
+            height: 60px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border-radius: 50%;
+            border: 4px solid #4a5568;
+        }
+        input[type="color"]::-moz-color-swatch {
+            border-radius: 50%;
+            border: 4px solid #4a5568;
+        }
+        /* Style untuk tombol aktif/nonaktif */
+        .btn-active {
+            background-color: #4299e1;
+            color: white;
+        }
+        .btn-inactive {
+            background-color: #2d3748;
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 space-y-8">
+        <!-- Judul -->
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-400">Generator Gradien CSS</h1>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Kolom Pengaturan -->
+            <div class="space-y-6">
+                <div class="flex justify-between items-center border-b-2 border-gray-700 pb-2">
+                    <h2 class="text-xl font-semibold">Pengaturan</h2>
+                    <button id="randomButton" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9c-4.97 0-9-4.03-9-9s4.03-9 9-9c1.85 0 3.58.56 5 1.53M22 2l-2.5 2.5M19.5 4.5 22 2"/></svg>
+                        Acak
+                    </button>
+                </div>
+                
+                <!-- Pilihan Warna -->
+                <div class="flex items-center justify-around">
+                    <div class="text-center space-y-2">
+                        <label for="color1" class="font-medium">Warna 1</label>
+                        <input type="color" id="color1" value="#8a2387">
+                        <span id="color1Value" class="block font-mono text-sm text-gray-400">#8a2387</span>
+                    </div>
+                    <div class="text-center space-y-2">
+                        <label for="color2" class="font-medium">Warna 2</label>
+                        <input type="color" id="color2" value="#f27121">
+                        <span id="color2Value" class="block font-mono text-sm text-gray-400">#f27121</span>
+                    </div>
+                </div>
+
+                <!-- Tipe Gradien -->
+                <div class="space-y-3">
+                    <label class="font-medium">Tipe Gradien</label>
+                    <div class="flex rounded-lg bg-gray-700 p-1">
+                        <button id="linearBtn" class="w-1/2 p-2 rounded-md font-semibold transition-colors duration-200">Linear</button>
+                        <button id="radialBtn" class="w-1/2 p-2 rounded-md font-semibold transition-colors duration-200">Radial</button>
+                    </div>
+                </div>
+
+                <!-- Opsi Gradien Linear -->
+                <div id="linearOptions" class="space-y-6">
+                    <!-- Pengaturan Arah -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label for="angle" class="font-medium">Arah Gradien</label>
+                            <span id="angleValue" class="text-lg font-bold text-blue-400">90°</span>
+                        </div>
+                        <input type="range" id="angle" min="0" max="360" value="90" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <!-- Arah Preset -->
+                    <div class="space-y-3">
+                        <label class="font-medium">Arah Preset</label>
+                        <div class="grid grid-cols-4 gap-2">
+                             <button data-angle="0" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">↑</button>
+                             <button data-angle="45" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">↗</button>
+                             <button data-angle="90" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">→</button>
+                             <button data-angle="135" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">↘</button>
+                             <button data-angle="180" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">↓</button>
+                             <button data-angle="225" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">↙</button>
+                             <button data-angle="270" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">←</button>
+                             <button data-angle="315" class="direction-btn aspect-square rounded-lg bg-gray-700 hover:bg-gray-600 transition">↖</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Pratinjau dan Kode -->
+            <div class="space-y-6">
+                 <h2 class="text-xl font-semibold border-b-2 border-gray-700 pb-2">Pratinjau & Kode</h2>
+                
+                <!-- Kotak Pratinjau -->
+                <div id="previewBox" class="w-full h-48 rounded-lg shadow-inner border-2 border-gray-700"></div>
+
+                <!-- Output Kode CSS -->
+                <div class="relative bg-gray-900 rounded-lg p-4 font-mono text-sm text-gray-300 min-h-[80px]">
+                    <code id="cssCode">background: linear-gradient(...);</code>
+                     <button id="copyButton" class="absolute right-2 top-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded-md transition duration-200">
+                        Salin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mengambil elemen-elemen dari DOM
+        const color1 = document.getElementById('color1');
+        const color2 = document.getElementById('color2');
+        const color1Value = document.getElementById('color1Value');
+        const color2Value = document.getElementById('color2Value');
+        const angle = document.getElementById('angle');
+        const angleValue = document.getElementById('angleValue');
+        const previewBox = document.getElementById('previewBox');
+        const cssCode = document.getElementById('cssCode');
+        const copyButton = document.getElementById('copyButton');
+        const randomButton = document.getElementById('randomButton');
+        const linearBtn = document.getElementById('linearBtn');
+        const radialBtn = document.getElementById('radialBtn');
+        const linearOptions = document.getElementById('linearOptions');
+        const directionBtns = document.querySelectorAll('.direction-btn');
+
+        // Variabel state
+        let gradientType = 'linear';
+
+        // Fungsi utama untuk memperbarui gradien
+        function updateGradient() {
+            const angleDeg = angle.value;
+            const colorA = color1.value;
+            const colorB = color2.value;
+
+            let gradientString = '';
+
+            if (gradientType === 'linear') {
+                 gradientString = `linear-gradient(${angleDeg}deg, ${colorA}, ${colorB})`;
+            } else {
+                 gradientString = `radial-gradient(circle, ${colorA}, ${colorB})`;
+            }
+
+            // Menerapkan gradien ke kotak pratinjau
+            previewBox.style.background = gradientString;
+
+            // Menampilkan kode CSS
+            cssCode.textContent = `background: ${gradientString};`;
+
+            // Memperbarui nilai teks
+            angleValue.textContent = `${angleDeg}°`;
+            color1Value.textContent = colorA;
+            color2Value.textContent = colorB;
+        }
+
+        // Fungsi untuk menyalin kode CSS
+        function copyCode() {
+            const codeToCopy = cssCode.textContent;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = codeToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            // Memberikan umpan balik visual
+            copyButton.textContent = 'Disalin!';
+            setTimeout(() => {
+                copyButton.textContent = 'Salin';
+            }, 1500); // Mengembalikan teks setelah 1.5 detik
+        }
+        
+        // Fungsi untuk menghasilkan nilai acak
+        function randomizeGradient() {
+            // Hasilkan dua warna acak
+            const randomColor1 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            const randomColor2 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            
+            // Hasilkan sudut acak
+            const randomAngle = Math.floor(Math.random() * 361);
+
+            // Terapkan nilai acak ke input
+            color1.value = randomColor1;
+            color2.value = randomColor2;
+            angle.value = randomAngle;
+            
+            // Perbarui gradien
+            updateGradient();
+        }
+        
+        // Fungsi untuk beralih tipe gradien
+        function setGradientType(type) {
+            gradientType = type;
+            if (type === 'linear') {
+                linearBtn.classList.add('btn-active');
+                linearBtn.classList.remove('btn-inactive');
+                radialBtn.classList.add('btn-inactive');
+                radialBtn.classList.remove('btn-active');
+                linearOptions.style.display = 'block';
+            } else {
+                radialBtn.classList.add('btn-active');
+                radialBtn.classList.remove('btn-inactive');
+                linearBtn.classList.add('btn-inactive');
+                linearBtn.classList.remove('btn-active');
+                linearOptions.style.display = 'none';
+            }
+            updateGradient();
+        }
+
+        // Menambahkan event listener ke semua input
+        color1.addEventListener('input', updateGradient);
+        color2.addEventListener('input', updateGradient);
+        angle.addEventListener('input', updateGradient);
+        copyButton.addEventListener('click', copyCode);
+        randomButton.addEventListener('click', randomizeGradient);
+        linearBtn.addEventListener('click', () => setGradientType('linear'));
+        radialBtn.addEventListener('click', () => setGradientType('radial'));
+
+        directionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                angle.value = btn.dataset.angle;
+                updateGradient();
+            });
+        });
+
+        // Memanggil fungsi sekali saat halaman dimuat untuk inisialisasi
+        window.onload = () => {
+             setGradientType('linear'); // Set default ke linear
+        };
+    </script>
+</body>
+</html>
+
