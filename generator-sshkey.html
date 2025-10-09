@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Kunci SSH</title>
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Font Inter dari Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Menggunakan font Inter sebagai default */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styling untuk textarea */
+        textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 space-y-8">
+        <!-- Judul -->
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-400">Generator Kunci SSH (RSA & Ed25519)</h1>
+        
+        <!-- Area Pengaturan -->
+        <div class="bg-gray-700 p-6 rounded-lg space-y-4">
+            <h2 class="text-xl font-semibold">Pengaturan</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Pilihan Algoritma Kunci -->
+                <div>
+                    <label for="keyAlgorithm" class="block font-medium mb-2">Algoritma Kunci</label>
+                    <select id="keyAlgorithm" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="ed25519" selected>Ed25519 (Modern & Cepat)</option>
+                        <option value="rsa">RSA (Klasik & Kompatibel)</option>
+                    </select>
+                </div>
+                <!-- Pilihan Ukuran Kunci (hanya untuk RSA) -->
+                <div id="rsaOptions">
+                    <label for="keySize" class="block font-medium mb-2">Ukuran Kunci (Bits)</label>
+                    <select id="keySize" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="2048">2048 (Baik)</option>
+                        <option value="4096" selected>4096 (Sangat Aman)</option>
+                    </select>
+                </div>
+                <!-- Input Komentar -->
+                <div class="md:col-span-2">
+                    <label for="keyComment" class="block font-medium mb-2">Komentar (misal: email Anda)</label>
+                    <input type="text" id="keyComment" placeholder="user@example.com" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+             <!-- Tombol Buat -->
+            <button id="generateButton" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300 transform hover:scale-105 flex items-center justify-center">
+                <span id="generateButtonText">Buat Kunci</span>
+                <svg id="loadingSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Area Output Kunci -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Kunci Publik -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Kunci Publik</h3>
+                    <button id="copyPublic" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1 px-3 rounded-md transition duration-200">Salin</button>
+                </div>
+                <textarea id="publicKeyOutput" rows="8" readonly class="w-full bg-gray-900 rounded-lg p-3 font-mono text-sm border border-gray-600 focus:ring-blue-500 focus:border-blue-500" placeholder="Kunci publik akan muncul di sini..."></textarea>
+            </div>
+            <!-- Kunci Privat -->
+             <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Kunci Privat</h3>
+                    <button id="copyPrivate" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1 px-3 rounded-md transition duration-200">Salin</button>
+                </div>
+                <textarea id="privateKeyOutput" rows="8" readonly class="w-full bg-gray-900 rounded-lg p-3 font-mono text-sm border border-gray-600 focus:ring-blue-500 focus:border-blue-500" placeholder="Kunci privat akan muncul di sini..."></textarea>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const generateButton = document.getElementById('generateButton');
+        const generateButtonText = document.getElementById('generateButtonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const keyAlgorithmSelect = document.getElementById('keyAlgorithm');
+        const rsaOptionsDiv = document.getElementById('rsaOptions');
+        const keySizeSelect = document.getElementById('keySize');
+        const keyCommentInput = document.getElementById('keyComment');
+        const publicKeyOutput = document.getElementById('publicKeyOutput');
+        const privateKeyOutput = document.getElementById('privateKeyOutput');
+        const copyPublicButton = document.getElementById('copyPublic');
+        const copyPrivateButton = document.getElementById('copyPrivate');
+
+        // Fungsi untuk mengonversi ArrayBuffer ke Base64
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+        
+        // Fungsi untuk memformat base64 ke dalam format PEM
+        function formatAsPem(base64String, type) {
+            const header = `-----BEGIN ${type} KEY-----`;
+            const footer = `-----END ${type} KEY-----`;
+            const chunks = base64String.match(/.{1,64}/g) || [];
+            return `${header}\n${chunks.join('\n')}\n${footer}`;
+        }
+
+        // Fungsi untuk membuat format kunci publik OpenSSH Ed25519
+        function createSshEd25519PublicKey(rawPublicKey, comment) {
+            const keyType = "ssh-ed25519";
+            
+            // Helper untuk membuat tipe data 'string' dalam format SSH
+            // (4-byte big-endian length prefix + data)
+            function createSshString(data) {
+                const buffer = (typeof data === 'string') ? new TextEncoder().encode(data) : new Uint8Array(data);
+                const len = buffer.byteLength;
+                const lenBuffer = new Uint8Array(4);
+                new DataView(lenBuffer.buffer).setUint32(0, len, false); // big-endian
+                
+                const combined = new Uint8Array(4 + len);
+                combined.set(lenBuffer, 0);
+                combined.set(buffer, 4);
+                return combined;
+            }
+
+            const keyTypeBuffer = createSshString(keyType);
+            const rawKeyBuffer = createSshString(rawPublicKey);
+            
+            const combinedBuffer = new Uint8Array(keyTypeBuffer.length + rawKeyBuffer.length);
+            combinedBuffer.set(keyTypeBuffer, 0);
+            combinedBuffer.set(rawKeyBuffer, keyTypeBuffer.length);
+            
+            const base64Key = arrayBufferToBase64(combinedBuffer.buffer);
+            
+            return `${keyType} ${base64Key} ${comment}`;
+        }
+
+        // Fungsi utama untuk membuat kunci
+        async function generateKeys() {
+            generateButton.disabled = true;
+            generateButtonText.textContent = 'Membuat...';
+            loadingSpinner.classList.remove('hidden');
+            publicKeyOutput.value = 'Memproses...';
+            privateKeyOutput.value = 'Memproses...';
+
+            try {
+                const algorithm = keyAlgorithmSelect.value;
+                const comment = keyCommentInput.value || 'generated-by-web-generator';
+                let keyPair, privateKeyPem, publicKeyString;
+
+                if (algorithm === 'rsa') {
+                    const keySize = parseInt(keySizeSelect.value, 10);
+                    keyPair = await window.crypto.subtle.generateKey(
+                        { name: 'RSASSA-PKCS1-v1_5', modulusLength: keySize, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+                        true, ['sign', 'verify']
+                    );
+                    const publicKeySpki = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
+                    const publicKeyBase64 = arrayBufferToBase64(publicKeySpki);
+                    publicKeyString = `comment: ${comment}\n${formatAsPem(publicKeyBase64, 'PUBLIC')}`;
+                    const privateKeyPkcs8 = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+                    const privateKeyBase64 = arrayBufferToBase64(privateKeyPkcs8);
+                    privateKeyPem = formatAsPem(privateKeyBase64, 'PRIVATE');
+
+                } else if (algorithm === 'ed25519') {
+                    keyPair = await window.crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
+                    const rawPublicKey = await window.crypto.subtle.exportKey('raw', keyPair.publicKey);
+                    publicKeyString = createSshEd25519PublicKey(rawPublicKey, comment);
+                    const privateKeyPkcs8 = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+                    const privateKeyBase64 = arrayBufferToBase64(privateKeyPkcs8);
+                    privateKeyPem = formatAsPem(privateKeyBase64, 'OPENSSH PRIVATE');
+                }
+                
+                publicKeyOutput.value = publicKeyString;
+                privateKeyOutput.value = privateKeyPem;
+
+            } catch (err) {
+                console.error('Gagal membuat kunci:', err);
+                const errorMsg = 'Terjadi kesalahan. Browser Anda mungkin tidak mendukung Web Crypto API atau algoritma ini.';
+                publicKeyOutput.value = errorMsg;
+                privateKeyOutput.value = errorMsg;
+            } finally {
+                generateButton.disabled = false;
+                generateButtonText.textContent = 'Buat Kunci';
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        function copyToClipboard(element, button) {
+            if (!element.value || element.value.startsWith('Memproses...')) return;
+            element.select();
+            document.execCommand('copy');
+            const originalText = button.textContent;
+            button.textContent = 'Disalin!';
+            setTimeout(() => { button.textContent = originalText; }, 1500);
+        }
+
+        function handleAlgorithmChange() {
+            if (keyAlgorithmSelect.value === 'rsa') {
+                rsaOptionsDiv.style.display = 'block';
+            } else {
+                rsaOptionsDiv.style.display = 'none';
+            }
+        }
+        
+        // Tambahkan event listener
+        generateButton.addEventListener('click', generateKeys);
+        copyPublicButton.addEventListener('click', () => copyToClipboard(publicKeyOutput, copyPublicButton));
+        copyPrivateButton.addEventListener('click', () => copyToClipboard(privateKeyOutput, copyPrivateButton));
+        keyAlgorithmSelect.addEventListener('change', handleAlgorithmChange);
+
+        // Panggil saat inisialisasi
+        handleAlgorithmChange();
+
+    </script>
+</body>
+</html>
+
